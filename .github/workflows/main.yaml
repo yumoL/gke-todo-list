@@ -8,6 +8,8 @@ env:
   GKE_ZONE: europe-north1-b
   FRONTEND_IMAGE: frontend
   BACKEND_IMAGE: backend
+  FRONTEND_DEP: frontend-dep
+  BACKEND_DEP: backend-dep
   ACTIONS_ALLOW_UNSECURE_COMMANDS: "true"
 
 jobs:
@@ -42,5 +44,10 @@ jobs:
         chmod u+x ./kustomize
     - name: Deploy
       run: |-
+        kubectl create namespace ${GITHUB_REF#refs/heads/} || true
+        kubectl config set-context --current --namespace=${GITHUB_REF#refs/heads/}
+        ./kustomize edit set namespace ${GITHUB_REF#refs/heads/}
         ./kustomize edit set image FRONTEND/IMAGE=$FRONTEND_IMAGE_WITH_TAG BACKEND/IMAGE=$BACKEND_IMAGE_WITH_TAG
         kubectl apply -k .
+        kubectl rollout status deployment $FRONTEND_DEP
+        kubectl rollout status deployment $BACKEND_DEP
