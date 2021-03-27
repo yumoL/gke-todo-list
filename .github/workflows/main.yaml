@@ -44,4 +44,3 @@ jobs:
       run: |-
         ./kustomize edit set image FRONTEND/IMAGE=$FRONTEND_IMAGE_WITH_TAG BACKEND/IMAGE=$BACKEND_IMAGE_WITH_TAG
         kubectl apply -k .
-        kubectl rollout status deployment $IMAGE
